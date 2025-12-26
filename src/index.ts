@@ -6,19 +6,31 @@ const init = async () => {
     clientId: 'PRwd7fFYkjxfOS2B00NvgYKImsRDFTMR', //cleintID from auth0
     domain: 'dev-sql-gym.eu.auth0.com',//domain from auth0
     authorizationParams: {
-      redirect_uri: 'https://www.tably.es/user-account', //Redirect URL after login
+      redirect_uri: 'https://www.tably.es/order-tracking', //Redirect URL after login
+      audience: 'https://www.tably.es/about-us'
     },
   });
 
 
   const url = new URLSearchParams(window.location.search);
   const code = url.get('code');
+  console.log(code);
   if (code) {
     await client.handleRedirectCallback();
     history.replaceState({}, document.title, window.location.origin + window.location.pathname)
   }
 
-  console.log(code);
+  const isLoggedIn = await client.isAuthenticated();
+
+  console.log({ isLoggedIn });
+
+  if (isLoggedIn) {
+    const access_token = await client.getTokenSilently();
+    const user = await client.getUser();
+    console.log({ user, access_token });
+  }
+
+
   window.Webflow ||= [];
   window.Webflow.push(() => {
     const loginElement = document.querySelector('#button_auth0_login');
